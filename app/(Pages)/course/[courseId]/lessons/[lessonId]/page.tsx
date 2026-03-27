@@ -17,6 +17,7 @@ import {
   Bell,
   UserCircle,
 } from "lucide-react";
+import Navbar from "@/components/navbar";
 
 export default function LessonPlayer() {
   const { courseId, lessonId } = useParams();
@@ -111,80 +112,66 @@ export default function LessonPlayer() {
     }
   };
 
-  if (!lesson && !isLoading)
-    return (
-      <div className="min-h-screen bg-[#faf8ff] flex items-center justify-center font-black text-2xl text-red-500">
-        LESSON NOT FOUND
+
+// 1. Handle Loading First
+if (isLoading) {
+  return (
+    <div className="min-h-screen bg-[#faf8ff] flex items-center justify-center">
+      <div className="flex flex-col items-center gap-4">
+        <div className="w-12 h-12 border-4 border-[#0053da]/20 border-t-[#0053da] rounded-full animate-spin" />
+        <p className="font-black text-[#131b2e] animate-pulse uppercase tracking-widest text-xs">
+          Entering the Sanctuary...
+        </p>
       </div>
-    );
-  if (!lesson) return null;
+    </div>
+  );
+}
+
+// 2. Handle Error State
+if (!lesson) {
+  return (
+    <div className="min-h-screen bg-[#faf8ff] flex flex-col items-center justify-center p-8 text-center">
+      <h1 className="text-6xl font-black text-[#131b2e] mb-4 opacity-10">404</h1>
+      <p className="font-black text-2xl text-red-500 uppercase tracking-tighter">Lesson Not Found</p>
+      <p className="text-[#414754] mt-2 mb-8">The editorial insight you are looking for does not exist.</p>
+      <button 
+        onClick={() => router.push('/dashboard')}
+        className="bg-[#0053da] text-white px-8 py-4 rounded-2xl font-bold shadow-lg"
+      >
+        Back to Dashboard
+      </button>
+    </div>
+  );
+}
+
 
   const currentLessonIndex = curriculum.findIndex((l) => l.id === lessonId);
   const prevLesson = curriculum[currentLessonIndex - 1];
   const nextLesson = curriculum[currentLessonIndex + 1];
 
   return (
-    <div className="flex flex-col h-screen bg-[#faf8ff] overflow-hidden selection:bg-[#B4C5FF]">
+    <div className="flex flex-col h-screen bg-background overflow-hidden">
       {/* Top Header */}
-      <header className="h-[72px] border-b border-[#c1c6d6]/20 bg-white flex items-center justify-between px-8 shrink-0 z-50">
-        <div className="flex items-center gap-8">
-          <Link
-            href="/dashboard"
-            className="text-xl font-black tracking-tighter text-[#131b2e] font-sans"
-          >
-            EI
-          </Link>
-          <nav className="hidden md:flex gap-6 text-sm font-semibold">
-            <Link
-              href="/dashboard"
-              className="text-[#0053da] border-b-2 border-[#0053da] py-6"
-            >
-              My Courses
-            </Link>
-            <a
-              href="#"
-              className="text-[#414754] py-6 hover:text-[#0053da] transition-colors"
-            >
-              Categories
-            </a>
-          </nav>
-        </div>
-
-        <div className="flex items-center gap-6">
-          <div className="hidden lg:flex items-center bg-[#f2f3ff] px-4 py-2 rounded-full">
-            <Search className="w-4 h-4 text-[#727785]" />
-            <input
-              className="bg-transparent border-none focus:ring-0 text-xs w-48 ml-2"
-              placeholder="Search insights..."
-            />
-          </div>
-          <div className="flex gap-4 text-[#414754]">
-            <Bell className="w-5 h-5 cursor-pointer hover:text-[#0053da]" />
-            <Link href="/userInfo">
-              <UserCircle className="w-5 h-5 cursor-pointer hover:text-[#0053da]" />
-            </Link>
-          </div>
-        </div>
-      </header>
+      <Navbar />
 
       <main className="flex flex-1 overflow-hidden flex-col md:flex-row">
         {/* Main Content Area */}
-        <section className="flex-1 overflow-y-auto custom-scrollbar bg-white">
+        <section className="flex-1 overflow-y-auto custom-scrollbar bg-background text-foreground">
           {/* Breadcrumbs & Title */}
           <div className="px-8 pt-10 pb-6">
-            <div className="flex items-center gap-2 text-[10px] font-black tracking-widest text-[#414754] uppercase mb-3">
-              <span className="bg-[#f2f3ff] px-2 py-1 rounded">Course</span>
+            <div className="flex items-center gap-2 text-[10px] font-black tracking-widest  uppercase mb-3">
+              <span className="bg-background px-2 py-1 rounded">Course</span>
               <span className="opacity-30">•</span>
               <span>{lesson.course?.title}</span>
             </div>
-            <h1 className="text-3xl font-black tracking-tight text-[#131b2e]">
+            <h1 className="text-3xl font-black tracking-tight ">
               {lesson.position}. {lesson.title}
             </h1>
           </div>
 
           {/* Video Player */}
           <div className="px-8 w-full group">
-            <div className="relative aspect-video bg-[#131b2e] rounded-[32px] overflow-hidden shadow-2xl">
+            <div className="relative aspect-video bg-background rounded-[32px] overflow-hidden shadow-2xl">
               <video
                 src={lesson.videoUrl}
                 className="w-full h-full object-contain"
@@ -203,7 +190,7 @@ export default function LessonPlayer() {
                   router.push(`/course/${courseId}/lessons/${prevLesson.id}`)
                 }
                 disabled={!prevLesson}
-                className="flex items-center gap-2 px-5 py-3 bg-[#f2f3ff] text-[#131b2e] font-bold rounded-2xl hover:bg-[#dae2fd] transition-all text-sm disabled:opacity-50"
+                className="flex items-center gap-2 px-5 py-3 bg-background font-bold rounded-2xl hover:bg-[#dae2fd] transition-all text-sm disabled:opacity-50"
               >
                 <ChevronLeft className="w-4 h-4" /> Previous
               </button>
@@ -213,7 +200,7 @@ export default function LessonPlayer() {
                   router.push(`/course/${courseId}/lessons/${nextLesson.id}`)
                 }
                 disabled={!nextLesson}
-                className="flex items-center gap-2 px-5 py-3 bg-[#f2f3ff] text-[#131b2e] font-bold rounded-2xl hover:bg-[#dae2fd] transition-all text-sm disabled:opacity-50"
+                className="flex items-center gap-2 px-5 py-3 bg-background font-bold rounded-2xl hover:bg-[#dae2fd] transition-all text-sm disabled:opacity-50"
               >
                 Next <ChevronRight className="w-4 h-4" />
               </button>
@@ -250,8 +237,8 @@ export default function LessonPlayer() {
         </section>
 
         {/* Sidebar */}
-        <aside className="w-full md:w-[400px] lg:w-[460px] bg-[#f8f9ff] border-l border-[#c1c6d6]/20 flex flex-col shrink-0">
-          <div className="flex border-b border-[#c1c6d6]/20 bg-white">
+        <aside className="w-full md:w-[400px] lg:w-[460px] bg-background border-l border-[#c1c6d6]/20 flex flex-col shrink-0">
+          <div className="flex border-b border-[#c1c6d6]/20 bg-background">
             <button
               onClick={() => setActiveTab("curriculum")}
               className={`flex-1 py-5 text-xs font-black uppercase tracking-widest transition-all ${activeTab === "curriculum" ? "text-[#0053da] border-b-2 border-[#0053da]" : "text-[#727785]"}`}
@@ -273,16 +260,16 @@ export default function LessonPlayer() {
                 animate={{ opacity: 1 }}
                 className="space-y-4"
               >
-                <div className="bg-white p-6 rounded-3xl border border-[#c1c6d6]/10 mb-6 shadow-sm">
+                <div className="bg-background p-6 rounded-3xl border border-[#c1c6d6]/10 mb-6 shadow-sm">
                   <div className="flex justify-between items-end mb-3">
-                    <span className="text-[10px] font-black text-[#131b2e] uppercase tracking-widest">
+                    <span className="text-[10px] font-black uppercase tracking-widest">
                       Course Progress
                     </span>
                     <span className="text-xl font-black text-[#0053da]">
                       {courseProgress}%
                     </span>
                   </div>
-                  <div className="h-2 w-full bg-[#f2f3ff] rounded-full overflow-hidden">
+                  <div className="h-2 w-full bg-background rounded-full overflow-hidden">
                     <motion.div
                       initial={{ width: 0 }}
                       animate={{ width: `${courseProgress}%` }}
@@ -291,17 +278,17 @@ export default function LessonPlayer() {
                     />
                   </div>
                   <div className="mt-4 flex justify-between items-center">
-                    <span className="text-[10px] font-bold text-[#727785]">
+                    <span className="text-[10px] font-bold ">
                       {curriculum.length} Lessons total
                     </span>
                   </div>
                 </div>
 
-                <div className="bg-[#f2f3ff] p-4 rounded-2xl flex justify-between items-center mb-6">
-                  <span className="text-[10px] font-black text-[#131b2e] uppercase tracking-widest">
+                <div className="bg-background p-4 rounded-2xl flex justify-between items-center mb-6">
+                  <span className="text-[10px] font-black  uppercase tracking-widest">
                     Full Curriculum
                   </span>
-                  <span className="text-[10px] font-bold text-[#0053da]">
+                  <span className="text-[10px] font-bold ">
                     {curriculum.length} Lessons
                   </span>
                 </div>
@@ -337,7 +324,7 @@ export default function LessonPlayer() {
                 animate={{ opacity: 1, y: 0 }}
                 className="h-full flex flex-col"
               >
-                <div className="bg-white p-6 rounded-3xl border border-[#006a61]/10 relative overflow-hidden group">
+                <div className="bg-background p-6 rounded-3xl border border-[#006a61]/10 relative overflow-hidden group">
                   <div className="absolute -right-4 -top-4 w-24 h-24 bg-[#006a61]/5 rounded-full blur-2xl transition-transform group-hover:scale-150" />
                   <div className="flex items-center gap-3 mb-4 relative z-10">
                     <div className="w-10 h-10 bg-[#006a61] rounded-xl flex items-center justify-center text-white shadow-lg">
@@ -365,10 +352,10 @@ export default function LessonPlayer() {
           </div>
 
           {/* Quick Chat Input */}
-          <div className="p-6 bg-white border-t border-[#c1c6d6]/20">
+          <div className="p-6 bg-background border-t border-[#c1c6d6]/20">
             <div className="relative">
               <input
-                className="w-full pl-6 pr-14 py-4 bg-[#f2f3ff] border-none rounded-2xl text-sm font-medium placeholder:text-[#727785] focus:ring-2 focus:ring-[#0053da]/20"
+                className="w-full pl-6 pr-14 py-4 bg-background border-none rounded-2xl text-sm font-medium placeholder:text-[#727785] focus:ring-2 focus:ring-[#0053da]/20"
                 placeholder="Ask your tutor anything..."
               />
               <button className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-[#0053da] text-white rounded-xl flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all">

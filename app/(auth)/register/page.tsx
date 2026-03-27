@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { motion, Variants, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
+import Navbar from '@/components/navbar';
+import { GoogleLogin } from '@react-oauth/google';
 const GoogleIcon = () => (
   <svg className="w-5 h-5" viewBox="0 0 24 24">
     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -65,6 +67,27 @@ export default function Register() {
     }
   };
 
+  const handleGoogleLogin = async (credentialResponse: any) => {
+    try {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/google/callback`, {
+        idToken: credentialResponse.credential,
+      });
+
+      if (response.data.success) {
+        const token = response.data.data.user.refreshToken;
+        console.log(token);
+        localStorage.setItem("token", token);
+        localStorage.setItem("user", JSON.stringify(response.data.data.user));
+        console.log("Stored in localStorage:", localStorage.getItem("user"));
+        setTimeout(() => {
+          router.push("/dashboard");
+        }, 100);
+      }
+    } catch (error: any) {
+      console.log(error);
+      alert(error.response?.data?.message || "Something went wrong");
+    }
+  };
 
 
   const containerVars: Variants = {
@@ -78,10 +101,10 @@ export default function Register() {
   };
 
   return (
-    <main className="min-h-screen flex flex-col md:flex-row bg-[#FAF8FF] selection:bg-[#0053DA] selection:text-white">
+    <main className="min-h-screen flex flex-col md:flex-row bg-background selection:bg-background selection:text-background">
       
       {/* Left Side: Hero (Hidden on Mobile) */}
-      <section className="hidden md:flex md:w-1/2 lg:w-3/5 bg-[#0053DA] relative overflow-hidden flex-col justify-between p-12">
+      <section className="hidden md:flex md:w-1/2 lg:w-3/5 bg-background relative overflow-hidden flex-col justify-between p-12">
         <div className="absolute inset-0 z-0">
           <motion.img 
             initial={{ scale: 1.1, opacity: 0 }}
@@ -96,7 +119,7 @@ export default function Register() {
 
         <div className="relative z-10">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg font-bold text-[#0053DA]">EI</div>
+            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg font-bold text-background">EI</div>
             <span className="text-2xl font-black text-white font-sans tracking-tighter">Editorial Intelligence</span>
           </div>
         </div>
@@ -240,6 +263,21 @@ export default function Register() {
           </motion.div>
 
           {/* Social Buttons */}
+          <div className="flex flex-col gap-4">
+            <motion.div variants={itemVars} whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }} className="w-full">
+              <GoogleLogin
+                onSuccess={handleGoogleLogin}
+                onError={() => {
+                  console.log('Login Failed');
+                }}
+                useOneTap={false}
+                text={authMode === 'signin' ? 'signin_with' : 'signup_with'}
+                shape="pill"
+                size="large"
+                theme="outline"
+              />
+            </motion.div>
+          </div>
 
 
           <motion.footer variants={itemVars} className="mt-8 text-center md:text-left">

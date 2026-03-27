@@ -12,6 +12,7 @@ import {
   Star,
   BookOpen
 } from 'lucide-react'; // Using Lucide as a robust alternative to Material Symbols
+import Navbar from '@/components/navbar';
 
 // --- Animation Variants ---
 const fadeIn = {
@@ -31,66 +32,7 @@ const staggerContainer = {
 
 // --- Components ---
 
-export const Navbar = () => {
-  const [user, setUser] = useState<any>(null);
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch (e) {
-        console.error("Error parsing user from localStorage", e);
-      }
-    }
-  }, []);
-
-  return (
-    <nav className="w-full sticky top-0 z-50 bg-[#faf8ff]/80 backdrop-blur-md border-b border-[#c1c6d6]/15">
-      <div className="flex justify-between items-center px-8 py-4 max-w-[1920px] mx-auto">
-        <div className="flex items-center gap-12">
-          <motion.span 
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="text-2xl font-black tracking-tighter text-[#131b2e] font-sans"
-          >
-            Editorial Intelligence
-          </motion.span>
-          <div className="hidden md:flex items-center gap-8 text-sm font-medium">
-            <a className="text-[#414754] hover:text-[#0053da] transition-colors" href="#">My Courses</a>
-            <a className="text-[#0053da] font-bold border-b-2 border-[#0053da]" href="#">Categories</a>
-          </div>
-        </div>
-        <div className="flex items-center gap-6">
-          <div className="relative hidden lg:block">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#727785] w-4 h-4" />
-            <input 
-              className="pl-10 pr-4 py-2 rounded-full bg-[#f2f3ff] border-none focus:ring-2 focus:ring-[#0053da]/20 w-64 text-sm outline-none" 
-              placeholder="Search courses..." 
-            />
-          </div>
-          <div className="flex items-center gap-4 text-[#414754]">
-            <Bell className="w-5 h-5 cursor-pointer hover:text-[#0053da]" />
-            {/* <UserCircle className="w-6 h-6 cursor-pointer hover:text-[#0053da]" /> */}
-            {user ? (
-              <Link href="/userInfo">
-                <button className="bg-[#0053da] text-white px-6 py-2 rounded-full font-bold hover:bg-[#346df5] transition-all shadow-md shadow-[#0053da]/10 text-sm">
-                  Profile
-                </button>
-              </Link>
-            ) : (
-              <Link href="/register">
-                <button className="bg-[#0053da] text-white px-6 py-2 rounded-full font-bold hover:bg-[#346df5] transition-all shadow-md shadow-[#0053da]/10 text-sm">
-                  Register
-                </button>
-              </Link>
-            )}
-          </div>
-        </div>
-      </div>
-    </nav>
-  );
-};
 
 export const ProgressCard = ({ title, module, progress, eta, img }: any) => (
   <motion.div 

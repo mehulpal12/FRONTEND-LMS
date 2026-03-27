@@ -17,6 +17,7 @@ import {
   Bell,
   UserCircle,
 } from "lucide-react";
+import Navbar from "@/components/navbar";
 
 export default function LessonPlayer() {
   const { courseId, lessonId } = useParams();
@@ -111,13 +112,38 @@ export default function LessonPlayer() {
     }
   };
 
-  if (!lesson && !isLoading)
-    return (
-      <div className="min-h-screen bg-[#faf8ff] flex items-center justify-center font-black text-2xl text-red-500">
-        LESSON NOT FOUND
+
+// 1. Handle Loading First
+if (isLoading) {
+  return (
+    <div className="min-h-screen bg-[#faf8ff] flex items-center justify-center">
+      <div className="flex flex-col items-center gap-4">
+        <div className="w-12 h-12 border-4 border-[#0053da]/20 border-t-[#0053da] rounded-full animate-spin" />
+        <p className="font-black text-[#131b2e] animate-pulse uppercase tracking-widest text-xs">
+          Entering the Sanctuary...
+        </p>
       </div>
-    );
-  if (!lesson) return null;
+    </div>
+  );
+}
+
+// 2. Handle Error State
+if (!lesson) {
+  return (
+    <div className="min-h-screen bg-[#faf8ff] flex flex-col items-center justify-center p-8 text-center">
+      <h1 className="text-6xl font-black text-[#131b2e] mb-4 opacity-10">404</h1>
+      <p className="font-black text-2xl text-red-500 uppercase tracking-tighter">Lesson Not Found</p>
+      <p className="text-[#414754] mt-2 mb-8">The editorial insight you are looking for does not exist.</p>
+      <button 
+        onClick={() => router.push('/dashboard')}
+        className="bg-[#0053da] text-white px-8 py-4 rounded-2xl font-bold shadow-lg"
+      >
+        Back to Dashboard
+      </button>
+    </div>
+  );
+}
+
 
   const currentLessonIndex = curriculum.findIndex((l) => l.id === lessonId);
   const prevLesson = curriculum[currentLessonIndex - 1];
@@ -126,46 +152,7 @@ export default function LessonPlayer() {
   return (
     <div className="flex flex-col h-screen bg-[#faf8ff] overflow-hidden selection:bg-[#B4C5FF]">
       {/* Top Header */}
-      <header className="h-[72px] border-b border-[#c1c6d6]/20 bg-white flex items-center justify-between px-8 shrink-0 z-50">
-        <div className="flex items-center gap-8">
-          <Link
-            href="/dashboard"
-            className="text-xl font-black tracking-tighter text-[#131b2e] font-sans"
-          >
-            EI
-          </Link>
-          <nav className="hidden md:flex gap-6 text-sm font-semibold">
-            <Link
-              href="/dashboard"
-              className="text-[#0053da] border-b-2 border-[#0053da] py-6"
-            >
-              My Courses
-            </Link>
-            <a
-              href="#"
-              className="text-[#414754] py-6 hover:text-[#0053da] transition-colors"
-            >
-              Categories
-            </a>
-          </nav>
-        </div>
-
-        <div className="flex items-center gap-6">
-          <div className="hidden lg:flex items-center bg-[#f2f3ff] px-4 py-2 rounded-full">
-            <Search className="w-4 h-4 text-[#727785]" />
-            <input
-              className="bg-transparent border-none focus:ring-0 text-xs w-48 ml-2"
-              placeholder="Search insights..."
-            />
-          </div>
-          <div className="flex gap-4 text-[#414754]">
-            <Bell className="w-5 h-5 cursor-pointer hover:text-[#0053da]" />
-            <Link href="/userInfo">
-              <UserCircle className="w-5 h-5 cursor-pointer hover:text-[#0053da]" />
-            </Link>
-          </div>
-        </div>
-      </header>
+      <Navbar />
 
       <main className="flex flex-1 overflow-hidden flex-col md:flex-row">
         {/* Main Content Area */}

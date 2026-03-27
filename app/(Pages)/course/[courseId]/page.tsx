@@ -25,6 +25,8 @@ import {
   UserCircle
 } from 'lucide-react';
 import axios from 'axios';
+import { createPayment, verifyPayment, enrollCourse } from '@/lib/api';
+import Navbar from '@/components/navbar';
 
 // --- Types ---
 interface Lesson {
@@ -43,29 +45,6 @@ interface Section {
 
 // --- Components ---
 
-const Navbar = () => (
-  <nav className="w-full sticky top-0 z-50 bg-[#faf8ff]/80 backdrop-blur-xl border-b border-[#c1c6d6]/15">
-    <div className="flex justify-between items-center px-8 py-4 max-w-[1920px] mx-auto">
-      <div className="flex items-center gap-12">
-        <span className="text-2xl font-black tracking-tighter text-[#131b2e] font-sans">Editorial Intelligence</span>
-        <div className="hidden md:flex gap-8 text-sm font-semibold text-[#414754]">
-          <a href="#" className="hover:text-[#0053da] transition-colors">My Courses</a>
-          <a href="#" className="text-[#0053da] border-b-2 border-[#0053da]">Categories</a>
-        </div>
-      </div>
-      <div className="flex items-center gap-6">
-        <div className="hidden lg:flex items-center bg-[#f2f3ff] px-4 py-2 rounded-full border border-[#0053da]/5">
-          <Search className="text-[#727785] w-4 h-4" />
-          <input className="bg-transparent border-none focus:ring-0 text-sm w-64 ml-2" placeholder="Search insights..." />
-        </div>
-        <div className="flex gap-4 text-[#414754]">
-          <Bell className="w-5 h-5 cursor-pointer hover:text-[#0053da]" />
-          <UserCircle className="w-5 h-5 cursor-pointer hover:text-[#0053da]" />
-        </div>
-      </div>
-    </div>
-  </nav>
-);
 
 const AccordionSection = ({ section, courseId }: { section: Section, courseId: string }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -92,22 +71,30 @@ const AccordionSection = ({ section, courseId }: { section: Section, courseId: s
             className="overflow-hidden"
           >
             <div className="p-2 divide-y divide-[#c1c6d6]/10">
-              {section.lessons.map((lesson) => (
-                <Link 
-                  href={`/course/${courseId}/lessons/${lesson.id}`} 
-                  key={lesson.id} 
-                  className="p-4 flex justify-between items-center hover:bg-[#faf8ff] rounded-xl group transition-all"
-                >
-                  <div className="flex items-center gap-4">
-                    {lesson.type === 'video' ? <PlayCircle className="w-4 h-4 text-[#414754] group-hover:text-[#0053da]" /> : <FileText className="w-4 h-4 text-[#414754]" />}
-                    <span className="text-sm text-[#414754] font-medium">{lesson.title}</span>
+              {section.lessons.map((lesson) => {
+                const isPreviewOrEnrolled = lesson.preview;
+                const lessonContent = (
+                  <div 
+                    key={lesson.id} 
+                    className={`p-4 flex justify-between items-center rounded-xl group transition-all ${isPreviewOrEnrolled ? 'hover:bg-[#faf8ff] cursor-pointer' : 'opacity-70 cursor-not-allowed'}`}
+                    // onClick={() => {
+                    //   if (isPreviewOrEnrolled) {
+                    //     router.push(`/course/${courseId}/lessons/${lesson.id}`);
+                    //   }
+                    // }}
+                  >
+                    <div className="flex items-center gap-4">
+                      {lesson.type === 'video' ? <PlayCircle className="w-4 h-4 text-[#414754] group-hover:text-[#0053da]" /> : <FileText className="w-4 h-4 text-[#414754]" />}
+                      <span className="text-sm text-[#414754] font-medium">{lesson.title}</span>
+                    </div>
+                    <div className="flex gap-4 items-center">
+                      {lesson.preview && <span className="text-[10px] font-bold text-[#0053da] underline cursor-pointer">Preview</span>}
+                      <span className="text-[10px] text-[#727785]">{lesson.duration}</span>
+                    </div>
                   </div>
-                  <div className="flex gap-4 items-center">
-                    {lesson.preview && <span className="text-[10px] font-bold text-[#0053da] underline cursor-pointer">Preview</span>}
-                    <span className="text-[10px] text-[#727785]">{lesson.duration}</span>
-                  </div>
-                </Link>
-              ))}
+                );
+                return lessonContent;
+              })}
             </div>
           </motion.div>
         )}
@@ -156,35 +143,78 @@ export default function CourseDetailPage() {
   }, [courseId]);
 
   const handleEnroll = async () => {
-    if (isEnrolled) {
-      const firstLesson = course.lessons?.[0];
-      if (firstLesson) {
-        router.push(`/course/${courseId}/lessons/${firstLesson.id}`);
-      }
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/register");
       return;
     }
-    
-    setIsEnrolling(true);
+
+    if (typeof courseId !== "string") return;
+
     try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        router.push("/register");
+      setIsEnrolling(true);
+      
+      // Step 1: Create Payment
+      console.log("Initiating payment...");
+      await createPayment(courseId, token);
+      
+      // Step 2: Verify Payment
+      console.log("Verifying payment...");
+      await verifyPayment(courseId, token);
+      
+      // Step 3: Enroll Course
+      console.log("Finalizing enrollment...");
+      await enrollCourse(courseId, token);
+      
+      setIsEnrolled(true);
+      alert("Enrolled successfully!");
+    } catch (error: any) {
+      if (error.response?.data?.message === "Already purchased") {
+        setIsEnrolled(true);
+        const firstLesson = course.lessons?.[0];
+        if (firstLesson) {
+          router.push(`/course/${courseId}/lessons/${firstLesson.id}`);
+        }
         return;
       }
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/enrollment/${courseId}`, {}, {
-        headers: { Authorization: `Bearer ${token}` },
-        withCredentials: true
-      });
-      setIsEnrolled(true);
-    } catch (error) {
       console.error("Enrollment failed", error);
+      alert(error.response?.data?.message || "Enrollment failed. Please try again.");
     } finally {
       setIsEnrolling(false);
     }
   };
 
-  if (!course && !isLoading) return <div className="min-h-screen bg-[#faf8ff] flex items-center justify-center font-black text-2xl text-red-500">COURSE NOT FOUND</div>;
-  if (!course) return null;
+// 1. Handle Loading First
+if (isLoading) {
+  return (
+    <div className="min-h-screen bg-[#faf8ff] flex items-center justify-center">
+      <div className="flex flex-col items-center gap-4">
+        <div className="w-12 h-12 border-4 border-[#0053da]/20 border-t-[#0053da] rounded-full animate-spin" />
+        <p className="font-black text-[#131b2e] animate-pulse uppercase tracking-widest text-xs">
+          Entering the Sanctuary...
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// 2. Handle Error State
+if (!course) {
+  return (
+    <div className="min-h-screen bg-[#faf8ff] flex flex-col items-center justify-center p-8 text-center">
+      <h1 className="text-6xl font-black text-[#131b2e] mb-4 opacity-10">404</h1>
+      <p className="font-black text-2xl text-red-500 uppercase tracking-tighter">Course Not Found</p>
+      <p className="text-[#414754] mt-2 mb-8">The editorial insight you are looking for does not exist.</p>
+      <button 
+        onClick={() => router.push('/dashboard')}
+        className="bg-[#0053da] text-white px-8 py-4 rounded-2xl font-bold shadow-lg"
+      >
+        Back to Dashboard
+      </button>
+    </div>
+  );
+}
+
 
   return (
     <div className="bg-[#faf8ff] min-h-screen font-sans selection:bg-[#B4C5FF]">
@@ -315,11 +345,11 @@ export default function CourseDetailPage() {
             <h2 className="text-3xl font-black text-[#131b2e] mb-8 tracking-tighter">Instructor</h2>
             <div className="flex flex-col md:flex-row gap-8 relative z-10">
               <div className="w-32 h-32 rounded-3xl bg-gradient-to-tr from-[#131B2E] to-[#0053da] shadow-xl flex-shrink-0 overflow-hidden">
-                <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2" className="w-full h-full object-cover" alt="Elena" />
+                <img src={course.instructor?.avatar} className="w-full h-full object-cover" alt="Elena" />
               </div>
               <div>
-                <h3 className="text-2xl font-black text-[#0053da] tracking-tight">Dr. Elena Vörös</h3>
-                <p className="text-[#414754] font-bold text-sm mt-1">Global Head of Editorial Synthesis</p>
+                <h3 className="text-2xl font-black text-[#0053da] tracking-tight">{course.instructor?.name}</h3>
+                <p className="text-[#414754] font-bold text-sm mt-1">{course.instructor?.role}</p>
                 <div className="flex gap-6 my-6 text-[10px] font-black uppercase tracking-widest text-[#131b2e]">
                   <div className="flex items-center gap-2"><Star className="w-3 h-3 fill-[#0053da] text-[#0053da]" /> 4.8 Rating</div>
                   <div className="flex items-center gap-2 text-[#006A61]"><CheckCircle2 className="w-3 h-3" /> 245k Students</div>

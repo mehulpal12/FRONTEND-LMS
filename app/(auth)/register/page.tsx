@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { motion, Variants, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
+import { GoogleLogin } from '@react-oauth/google';
 const GoogleIcon = () => (
   <svg className="w-5 h-5" viewBox="0 0 24 24">
     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -65,6 +66,27 @@ export default function Register() {
     }
   };
 
+  const handleGoogleLogin = async (credentialResponse: any) => {
+    try {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/google/callback`, {
+        idToken: credentialResponse.credential,
+      });
+
+      if (response.data.success) {
+        const token = response.data.data.user.refreshToken;
+        console.log(token);
+        localStorage.setItem("token", token);
+        localStorage.setItem("user", JSON.stringify(response.data.data.user));
+        console.log("Stored in localStorage:", localStorage.getItem("user"));
+        setTimeout(() => {
+          router.push("/dashboard");
+        }, 100);
+      }
+    } catch (error: any) {
+      console.log(error);
+      alert(error.response?.data?.message || "Something went wrong");
+    }
+  };
 
 
   const containerVars: Variants = {
@@ -240,6 +262,21 @@ export default function Register() {
           </motion.div>
 
           {/* Social Buttons */}
+          <div className="flex flex-col gap-4">
+            <motion.div variants={itemVars} whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }} className="w-full">
+              <GoogleLogin
+                onSuccess={handleGoogleLogin}
+                onError={() => {
+                  console.log('Login Failed');
+                }}
+                useOneTap={false}
+                text={authMode === 'signin' ? 'signin_with' : 'signup_with'}
+                shape="pill"
+                size="large"
+                theme="outline"
+              />
+            </motion.div>
+          </div>
 
 
           <motion.footer variants={itemVars} className="mt-8 text-center md:text-left">

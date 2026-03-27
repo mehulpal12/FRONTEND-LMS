@@ -150,28 +150,28 @@ if (!lesson) {
   const nextLesson = curriculum[currentLessonIndex + 1];
 
   return (
-    <div className="flex flex-col h-screen bg-[#faf8ff] overflow-hidden selection:bg-[#B4C5FF]">
+    <div className="flex flex-col h-screen bg-background overflow-hidden">
       {/* Top Header */}
       <Navbar />
 
       <main className="flex flex-1 overflow-hidden flex-col md:flex-row">
         {/* Main Content Area */}
-        <section className="flex-1 overflow-y-auto custom-scrollbar bg-white">
+        <section className="flex-1 overflow-y-auto custom-scrollbar bg-background text-foreground">
           {/* Breadcrumbs & Title */}
           <div className="px-8 pt-10 pb-6">
-            <div className="flex items-center gap-2 text-[10px] font-black tracking-widest text-[#414754] uppercase mb-3">
-              <span className="bg-[#f2f3ff] px-2 py-1 rounded">Course</span>
+            <div className="flex items-center gap-2 text-[10px] font-black tracking-widest  uppercase mb-3">
+              <span className="bg-background px-2 py-1 rounded">Course</span>
               <span className="opacity-30">•</span>
               <span>{lesson.course?.title}</span>
             </div>
-            <h1 className="text-3xl font-black tracking-tight text-[#131b2e]">
+            <h1 className="text-3xl font-black tracking-tight ">
               {lesson.position}. {lesson.title}
             </h1>
           </div>
 
           {/* Video Player */}
           <div className="px-8 w-full group">
-            <div className="relative aspect-video bg-[#131b2e] rounded-[32px] overflow-hidden shadow-2xl">
+            <div className="relative aspect-video bg-background rounded-[32px] overflow-hidden shadow-2xl">
               <video
                 src={lesson.videoUrl}
                 className="w-full h-full object-contain"
@@ -190,7 +190,7 @@ if (!lesson) {
                   router.push(`/course/${courseId}/lessons/${prevLesson.id}`)
                 }
                 disabled={!prevLesson}
-                className="flex items-center gap-2 px-5 py-3 bg-[#f2f3ff] text-[#131b2e] font-bold rounded-2xl hover:bg-[#dae2fd] transition-all text-sm disabled:opacity-50"
+                className="flex items-center gap-2 px-5 py-3 bg-background font-bold rounded-2xl hover:bg-[#dae2fd] transition-all text-sm disabled:opacity-50"
               >
                 <ChevronLeft className="w-4 h-4" /> Previous
               </button>
@@ -200,7 +200,7 @@ if (!lesson) {
                   router.push(`/course/${courseId}/lessons/${nextLesson.id}`)
                 }
                 disabled={!nextLesson}
-                className="flex items-center gap-2 px-5 py-3 bg-[#f2f3ff] text-[#131b2e] font-bold rounded-2xl hover:bg-[#dae2fd] transition-all text-sm disabled:opacity-50"
+                className="flex items-center gap-2 px-5 py-3 bg-background font-bold rounded-2xl hover:bg-[#dae2fd] transition-all text-sm disabled:opacity-50"
               >
                 Next <ChevronRight className="w-4 h-4" />
               </button>
@@ -237,8 +237,8 @@ if (!lesson) {
         </section>
 
         {/* Sidebar */}
-        <aside className="w-full md:w-[400px] lg:w-[460px] bg-[#f8f9ff] border-l border-[#c1c6d6]/20 flex flex-col shrink-0">
-          <div className="flex border-b border-[#c1c6d6]/20 bg-white">
+        <aside className="w-full md:w-[400px] lg:w-[460px] bg-background border-l border-[#c1c6d6]/20 flex flex-col shrink-0">
+          <div className="flex border-b border-[#c1c6d6]/20 bg-background">
             <button
               onClick={() => setActiveTab("curriculum")}
               className={`flex-1 py-5 text-xs font-black uppercase tracking-widest transition-all ${activeTab === "curriculum" ? "text-[#0053da] border-b-2 border-[#0053da]" : "text-[#727785]"}`}
@@ -260,16 +260,16 @@ if (!lesson) {
                 animate={{ opacity: 1 }}
                 className="space-y-4"
               >
-                <div className="bg-white p-6 rounded-3xl border border-[#c1c6d6]/10 mb-6 shadow-sm">
+                <div className="bg-background p-6 rounded-3xl border border-[#c1c6d6]/10 mb-6 shadow-sm">
                   <div className="flex justify-between items-end mb-3">
-                    <span className="text-[10px] font-black text-[#131b2e] uppercase tracking-widest">
+                    <span className="text-[10px] font-black uppercase tracking-widest">
                       Course Progress
                     </span>
                     <span className="text-xl font-black text-[#0053da]">
                       {courseProgress}%
                     </span>
                   </div>
-                  <div className="h-2 w-full bg-[#f2f3ff] rounded-full overflow-hidden">
+                  <div className="h-2 w-full bg-background rounded-full overflow-hidden">
                     <motion.div
                       initial={{ width: 0 }}
                       animate={{ width: `${courseProgress}%` }}
@@ -278,17 +278,17 @@ if (!lesson) {
                     />
                   </div>
                   <div className="mt-4 flex justify-between items-center">
-                    <span className="text-[10px] font-bold text-[#727785]">
+                    <span className="text-[10px] font-bold ">
                       {curriculum.length} Lessons total
                     </span>
                   </div>
                 </div>
 
-                <div className="bg-[#f2f3ff] p-4 rounded-2xl flex justify-between items-center mb-6">
-                  <span className="text-[10px] font-black text-[#131b2e] uppercase tracking-widest">
+                <div className="bg-background p-4 rounded-2xl flex justify-between items-center mb-6">
+                  <span className="text-[10px] font-black  uppercase tracking-widest">
                     Full Curriculum
                   </span>
-                  <span className="text-[10px] font-bold text-[#0053da]">
+                  <span className="text-[10px] font-bold ">
                     {curriculum.length} Lessons
                   </span>
                 </div>
@@ -324,7 +324,7 @@ if (!lesson) {
                 animate={{ opacity: 1, y: 0 }}
                 className="h-full flex flex-col"
               >
-                <div className="bg-white p-6 rounded-3xl border border-[#006a61]/10 relative overflow-hidden group">
+                <div className="bg-background p-6 rounded-3xl border border-[#006a61]/10 relative overflow-hidden group">
                   <div className="absolute -right-4 -top-4 w-24 h-24 bg-[#006a61]/5 rounded-full blur-2xl transition-transform group-hover:scale-150" />
                   <div className="flex items-center gap-3 mb-4 relative z-10">
                     <div className="w-10 h-10 bg-[#006a61] rounded-xl flex items-center justify-center text-white shadow-lg">
@@ -352,10 +352,10 @@ if (!lesson) {
           </div>
 
           {/* Quick Chat Input */}
-          <div className="p-6 bg-white border-t border-[#c1c6d6]/20">
+          <div className="p-6 bg-background border-t border-[#c1c6d6]/20">
             <div className="relative">
               <input
-                className="w-full pl-6 pr-14 py-4 bg-[#f2f3ff] border-none rounded-2xl text-sm font-medium placeholder:text-[#727785] focus:ring-2 focus:ring-[#0053da]/20"
+                className="w-full pl-6 pr-14 py-4 bg-background border-none rounded-2xl text-sm font-medium placeholder:text-[#727785] focus:ring-2 focus:ring-[#0053da]/20"
                 placeholder="Ask your tutor anything..."
               />
               <button className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-[#0053da] text-white rounded-xl flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all">

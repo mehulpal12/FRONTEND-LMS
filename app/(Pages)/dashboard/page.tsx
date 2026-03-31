@@ -105,7 +105,7 @@ const CourseCard = ({ title, author, price, rating, img, tag }: any) => (
   </motion.div>
 );
 
-export default function LandingPage() {
+export default function Dashboard() {
   const [courses, setCourses] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 

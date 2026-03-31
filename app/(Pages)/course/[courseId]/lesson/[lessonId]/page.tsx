@@ -187,7 +187,7 @@ if (!lesson) {
               <button
                 onClick={() =>
                   prevLesson &&
-                  router.push(`/course/${courseId}/lessons/${prevLesson.id}`)
+                  router.push(`/course/${courseId}/lesson/${prevLesson.id}`)
                 }
                 disabled={!prevLesson}
                 className="flex items-center gap-2 px-5 py-3 bg-background font-bold rounded-2xl hover:bg-[#dae2fd] transition-all text-sm disabled:opacity-50"
@@ -197,7 +197,7 @@ if (!lesson) {
               <button
                 onClick={() =>
                   nextLesson &&
-                  router.push(`/course/${courseId}/lessons/${nextLesson.id}`)
+                  router.push(`/course/${courseId}/lesson/${nextLesson.id}`)
                 }
                 disabled={!nextLesson}
                 className="flex items-center gap-2 px-5 py-3 bg-background font-bold rounded-2xl hover:bg-[#dae2fd] transition-all text-sm disabled:opacity-50"
@@ -295,7 +295,7 @@ if (!lesson) {
 
                 {curriculum.map((item) => (
                   <Link
-                    href={`/course/${courseId}/lessons/${item.id}`}
+                    href={`/course/${courseId}/lesson/${item.id}`}
                     key={item.id}
                     className={`p-4 rounded-[20px] flex gap-4 items-center transition-all cursor-pointer ${
                       item.id === lessonId
